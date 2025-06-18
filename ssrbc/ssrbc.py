@@ -18,7 +18,7 @@ from torch.optim.lr_scheduler import CosineAnnealingLR, SequentialLR
 import torchvision.transforms as transforms
 from transformers import get_linear_schedule_with_warmup
 
-from .src.barlow import BarlowTwins
+from .src.simsiam import SimSiam
 from .src.data_handler import (
     get_clstoken,
     get_dr_feature,
@@ -54,7 +54,7 @@ class BTRBC:
         self.model = VitForClassification(self.config)
         self.model.load_state_dict(torch.load(model_path))
 
-    def prep_smeardata_bt(
+    def prep_smeardata_ss(
             self, exp_name: str=None, input_path: str=None,
             num_rbc=2000, show_imagedata=True,
             transform: Tuple[transforms.Compose, transforms.Compose]=(None, None),
@@ -98,11 +98,11 @@ class BTRBC:
 
     def fit(self, train_loader, test_loader, classes, btconfig={}, warmup=True):
         """ training """
-        # モデル等の準備 (Classの有無でBTとViTを切り替え)
+        # モデル等の準備 (Classの有無でSSとViTを切り替え)
         self.latent_id = btconfig["latent_id"]
         if len(btconfig) != 0:
             self.backbone = VitForClassification(self.config)
-            self.model = BarlowTwins(self.backbone, self.latent_id, btconfig["projection_sizes"], btconfig["lambd"], scale_factor=btconfig["scale_factor"])
+            self.model = SimSiam(self.backbone, self.latent_id, btconfig["projection_sizes"], btconfig["lambd"], scale_factor=btconfig["scale_factor"])
         else:
             self.model = VitForClassification(self.config)
 
