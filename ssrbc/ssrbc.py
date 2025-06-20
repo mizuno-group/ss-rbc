@@ -22,14 +22,14 @@ from .src.simsiam import SimSiam
 from .src.data_handler import (
     get_clstoken,
     get_dr_feature,
-    prep_smeardata_bt,
+    prep_smeardata_ss,
     prep_validdataset_lst,
 )
 from .src.image_aug import SSLTransform
 from .src.models.vit import VitForClassification
 from .src.trainer import Trainer
 
-class BTRBC:
+class SSRBC:
     def __init__(
             self, config_path: str
             ):
@@ -67,7 +67,7 @@ class BTRBC:
         self.config["exp_name"] = exp_name
         self.input_path = input_path
         ssltf = SSLTransform(crop_size=self.config["crop_size"])
-        train_loader, test_loader, classes = prep_smeardata_bt(
+        train_loader, test_loader, classes = prep_smeardata_ss(
             image_path=input_path, num_rbc=num_rbc, show_imagedata=show_imagedata,
             batch_size=self.config["batch_size"], 
             transform=transform,
@@ -102,7 +102,7 @@ class BTRBC:
         self.latent_id = btconfig["latent_id"]
         if len(btconfig) != 0:
             self.backbone = VitForClassification(self.config)
-            self.model = SimSiam(self.backbone, self.latent_id, btconfig["projection_sizes"], btconfig["lambd"], scale_factor=btconfig["scale_factor"])
+            self.model = SimSiam(self.backbone, self.latent_id, btconfig["projection_sizes"])
         else:
             self.model = VitForClassification(self.config)
 
@@ -147,7 +147,7 @@ class BTRBC:
             )
         
         if self.input_path2 is None:
-            accuracy, avg_loss, avg_on_diag, avg_off_diag = trainer.evaluate(test_loader)
+            accuracy, avg_loss = trainer.evaluate(test_loader)
             print(f"Accuracy: {accuracy} // Average Loss: {avg_loss}")
 
 

@@ -351,7 +351,7 @@ def prep_dataloader(
     return loader
 
 
-def prep_smeardata_bt(
+def prep_smeardata_ss(
     image_path=None, num_rbc=2000, show_imagedata=True,
     batch_size:int=0,
     transform=(None, None), ssl_transform=None, 
